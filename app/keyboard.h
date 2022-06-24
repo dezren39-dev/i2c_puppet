@@ -39,8 +39,9 @@ enum key_mod
 #define KEY_BTN_LEFT2	0x11
 #define KEY_BTN_RIGHT2	0x12
 
-#define KEY_HOME 0x13
-#define KEY_END 0x14
+#define KEY_HOME 		0x13
+#define KEY_END 		0x14
+#define KEY_DELETE 		0x15
 #define KEY_MOD_ALT		0x1A
 #define KEY_MOD_SHL		0x1B // Left Shift
 #define KEY_MOD_SHR		0x1C // Right Shift

@@ -66,6 +66,9 @@ static void key_cb(char key, enum key_state state)
 		conv_table[KEY_PAGE_UP][1]      = HID_KEY_PAGE_UP;
 		conv_table[KEY_PAGE_DOWN][1]    = HID_KEY_PAGE_DOWN;
 
+		conv_table[KEY_DELETE][0]		= 0; // DISABLE SHIFT MOD
+		conv_table[KEY_DELETE][1]		= HID_KEY_DELETE;
+
 		uint8_t keycode[6] = { 0 };
 		uint8_t modifier   = 0;
 
