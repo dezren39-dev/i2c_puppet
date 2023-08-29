@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <tusb.h>
 
+#include <hardware/rtc.h>
+
 #include "backlight.h"
 #include "debug.h"
 #include "gpioexp.h"
@@ -11,6 +13,7 @@
 #include "reg.h"
 #include "touchpad.h"
 #include "usb.h"
+#include "pi.h"
 
 // since the SDK doesn't support per-GPIO irq, we use this global irq and forward it
 static void gpio_irq(uint gpio, uint32_t events)
@@ -30,6 +33,8 @@ int main(void)
 	debug_init();
 #endif
 
+	rtc_init();
+
 	reg_init();
 
 	backlight_init();
@@ -46,6 +51,10 @@ int main(void)
 
 	// For now, the `gpio` param is ignored and all enabled GPIOs generate the irq
 	gpio_set_irq_enabled_with_callback(0xFF, 0, true, &gpio_irq);
+
+	led_init();
+	pi_power_init();
+	pi_power_on();
 
 #ifndef NDEBUG
 	printf("Starting main loop\r\n");
