@@ -130,10 +130,6 @@ If submodule updates are needed, it's recommend to:
     git submodule update --remote "3rdparty/pico-sdk"
     ```
 
-## The rest of the Readme
-
-The rest of the Readme file is effectively unchanged from upstream.
-
 ## Vendor USB Class
 
 You can configure the software over USB in a similar way you would do it over I2C. You can access the same registers (like the backlight register) using the USB Vendor Class.
@@ -444,8 +440,20 @@ This register can be read and written to, it is 1 byte in size.
 
 Default value: 0
 
-## Version history
-
+## Version history <!-- maybe we just delete this? -->
+    vNext:
+    - Add `submodule` helper scripts.
+    - Add `new-docker-build` script.
+    - Revert #1, issues with repeating
+    - Add backlight dimming registers
+    v2.1:
+    - Boot / shutdown using power key (#1)
+    v2.0:
+    - Beepy prerelease
+    v1.1:
+    - Fixed two quite annoying bugs:
+        - Left Shift sends an ESC key press (#11)
+        - TrackPad button not working with Num Lock on (#10)
 	v1.0:
 	- Initial release
 
