@@ -452,4 +452,5 @@ Default value: 0
         - TrackPad button not working with Num Lock on (#10)
 	v1.0:
 	- Initial release
+See here for the upstream project's history: https://github.com/solderparty/i2c_puppet#version-history
 See here for the legacy project's history: https://github.com/solderparty/bbq10kbd_i2c_sw#version-history
