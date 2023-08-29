@@ -25,47 +25,19 @@ This firmware targets the Beepy hardware. It can still act as a USB keyboard, bu
 
 Physical alt does not send an actual Alt key, but remaps the output scancodes to the range 135 to 161 in QWERTY order. This should be combined with a keymap for proper symbol output. This allows symbols to be customized without rebuilding the firmware, as well as proper use of the actual Alt key.
 
-## Quick Start
+### The rest of the Readme
 
-    git clone https://github.com/solderparty/i2c_puppet
-    cd i2c_puppet
-    ./new-docker-build.sh
-
-## Checkout / Init Submodules
-
-## Modifications
-
-Firmware has been updated to use BB10-style sticky modifier keys. It has a corresponding kernel module that has been updated to read modifier fields over I2C.
-
-Holding a modifier key (shift, physical alt, Symbol) while typing an alpha keys will apply the modifier to all alpha keys until the modifier is released.
-
-One press and release of the modifier will enter sticky mode, applying the modifier to
-the next alpha key only. If the same modifier key is pressed and released again in sticky mode, it will be canceled.
-
-Call is mapped to Control. The Berry button is mapped to `KEY_PROPS`. Clicking the touchpad button is mapped to `KEY_COMPOSE`. Back is mapped to Escape. End Call is not sent as a key, but holding it will still trigger the power-off routine. Symbol is mapped to AltGr (Right Alt).
-
-This firmware targets the Beepberry hardware. It can still act as a USB keyboard, but physical alt keys will not work unless you remap their values.
-
-Physical alt does not send an actual Alt key, but remaps the output scancodes to the range 135 to 161 in QWERTY order. This should be combined with a keymap for proper symbol output. This allows symbols to be customized without rebuilding the firmware, as well as proper use of the actual Alt key.
+I have not yet updated any other part of the Readme file.
 
 ## Checkout
 
-This repository depends on the Raspberry Pi Pico SDK, which is added as a submodule.
-Because the Pico SDK includes TinyUSB as its own module,
-it is not recommended to do a recursive submodule init,
-and rather follow these steps:
+The code depends on the Raspberry Pi Pico SDK, which is added as a submodule. Because the Pico SDK includes TinyUSB as a module, it is not recommended to do a recursive submodule init, and rather follow these steps:
 
     git clone https://github.com/solderparty/i2c_puppet
     cd i2c_puppet
     git submodule update --init
     cd 3rdparty/pico-sdk
     git submodule update --init
-
-Alternatively, feel free to invoke the `initialize-submodules.sh` script.
-
-    ./initialize-submodules.sh
-
-This script will perform the equivalent and inform you of the submodules current statuses.
 
 ## Build
 
@@ -75,56 +47,6 @@ See the `boards` directory for a list of available boards.
     cd build
     cmake -DPICO_BOARD=beepy -DCMAKE_BUILD_TYPE=Debug ..
     make
-
-## Docker Build
-
-If you don't have the dependencies for building this project on your system,
-
-you can also use a script that will run the build command using docker.
-
-    ./new-docker-build.sh
-
-The `new-docker-build.sh` script will invoke the commands from the `Build` section,
-
-using the `djflix/rpi-pico-builder:latest` Docker image.
-
-It will also ensure appropriate submodules have been at least initialized.
-
-If any issues building, first try a "Clean Run" by deleting the `build` directory.
-
-Due to how docker works, files in `build` may be owned by root and require `sudo` to delete.
-
-To automatically trigger a "Clean Run",
-
-    sudo ./new-docker-build.sh clean
-
-provide any argument to the `new-docker-build.sh` script while using `sudo`.
-
-## Reset Submodules
-
-If you need to reset the submodule state for some reason,
-feel free to invoke the `reset-submodules.sh` script.
-
-    ./reset-submodules.sh
-
-## Update Submodules
-
-In general, one should avoid updating or changing anything inside the submodules.
-
-Submodules should be changed in their respective origin repositories first.
-
-Submodules of submodules cannot be updated from a superproject (parent of at least one submodule.)
-
-If submodule updates are needed, it's recommend to:
-- ensure your code changes have landed in the appropriate origin repository branch.
-- if your code changes are to a submodule of a submodule,
-  - ensure your code changes have propogated up to each superproject (parent of at least one submodule) in the chain.
-- make a separate branch in this repo just for submodule updates.
-- perform your submodule update for the direct submodule of this superproject (parent of at least one submodule):
-  - <!-- this comment is to prevent automatic whitespace trimming -->
-    ```
-    git submodule update --remote "3rdparty/pico-sdk"
-    ```
 
 ## Vendor USB Class
 
@@ -155,11 +77,11 @@ The device uses I2C slave interface to communicate, the address can be configure
 You can read the values of all the registers, the number of returned bytes depends on the register.
 It's also possible to write to the registers, to do that, apply the write mask `0x80` to the register ID (for example, the backlight register `0x05` becomes `0x85`).
 
-### FW Version Register (REG_VER = 0x01)
+### The FW Version register (REG_VER = 0x01)
 
 Data written to this register is discarded. Reading this register returns 1 byte, the first nibble contains the major version and the second nibble contains the minor version of the firmware.
 
-### The Configuration Register (REG_CFG = 0x02)
+### The configuration register (REG_CFG = 0x02)
 
 This register can be read and written to, it's 1 byte in size.
 
@@ -181,7 +103,7 @@ See `REG_CF2` for additional settings.
 Defaut value:
 `CFG_OVERFLOW_INT | CFG_KEY_INT | CFG_USE_MODS`
 
-### Interrupt Status Register (REG_INT = 0x03)
+### Interrupt status register (REG_INT = 0x03)
 
 When an interrupt happens, the register can be read to check what caused the interrupt. It's 1 byte in size.
 
@@ -200,7 +122,7 @@ After reading the register, it has to manually be reset to `0x00`.
 
 For `INT_GPIO` check the bits in `REG_GIN` to see which GPIO triggered the interrupt. The GPIO interrupt must first be enabled in `REG_GIC`.
 
-### Key Status Register (REG_KEY = 0x04)
+### Key status register (REG_KEY = 0x04)
 
 This register contains information about the state of the fifo as well as modified keys. It is 1 byte in size.
 
@@ -211,47 +133,29 @@ This register contains information about the state of the fifo as well as modifi
 | 5      | KEY_CAPSLOCK     | Is Caps Lock on at the moment.                  |
 | 0-4    | KEY_COUNT        | Number of items in the FIFO waiting to be read. |
 
-### Backlight Control Register (REG_BKL = 0x05)
+### Backlight control register (REG_BKL = 0x05)
 
 Internally a PWM signal is generated to control the keyboard backlight, this register allows changing the brightness of the backlight. It is 1 byte in size, `0x00` being off and `0xFF` being the brightest.
 
 Default value: `0xFF`.
 
-### Backlight Dimming Timeout (REG_ID_BK3 = 0x17)
-
-This is a read-write register, it is 1 byte in size.
-
-The value of this register (expressed in units of 500ms) is used to determine when the backlight should be dimmed.
-
-Set to 0 to disable backlight dimming entirely.
-
-Default value: 0
-
-### Backlight Dimming Level (REG_ID_BK4 = 0x18)
-
-This is a read-write register, it is 1 byte in size.
-
-The value of this register is used to determine the backlight level when it is the dimmed state. This value has no effect if REG_ID_BK3 is set to 0.
-
-Default value: 96
-
-### Debounce Configuration Register (REG_DEB = 0x06)
+### Debounce configuration register (REG_DEB = 0x06)
 
 Currently not implemented.
 
 Default value: 10
 
-### Poll Frequency Configuration Register (REG_FRQ = 0x07)
+### Poll frequency configuration register (REG_FRQ = 0x07)
 
 Currently not implemented.
 
 Default value: 5
 
-### Chip Reset Register (REG_RST = 0x08)
+### Chip reset register (REG_RST = 0x08)
 
 Reading or writing to this register will cause a SW reset of the chip.
 
-### FIFO Access Register (REG_FIF = 0x09)
+### FIFO access register (REG_FIF = 0x09)
 
 This register can be used to read the top of the key FIFO. It returns two bytes, a key state and a key code.
 
@@ -263,13 +167,13 @@ Possible key states:
 | 2      | Pressed and Held        |
 | 3      | Released                |
 
-### Secondary Backlight Control Register (REG_BK2 = 0x0A)
+### Secondary backlight control register (REG_BK2 = 0x0A)
 
 Internally a PWM signal is generated to control a secondary backlight (for example, a screen), this register allows changing the brightness of the backlight. It is 1 byte in size, `0x00` being off and `0xFF` being the brightest.
 
 Default value: `0xFF`.
 
-### GPIO Direction Register (REG_DIR = 0x0B)
+### GPIO direction register (REG_DIR = 0x0B)
 
 This register controls the direction of the GPIO expander pins, each bit corresponding to one pin. It is 1 byte in size.
 
@@ -279,7 +183,7 @@ Any bit set to `1` means the GPIO is configured as input, any bit set to `0` mea
 
 Default value: `0xFF` (all GPIOs configured as input)
 
-### GPIO Input Pull Enable Register (REG_PUE = 0x0C)
+### GPIO input pull enable register (REG_PUE = 0x0C)
 
 If a GPIO is configured as an input (using `REG_DIR`), a optional pull-up/pull-down can be enabled.
 
@@ -295,7 +199,7 @@ When a pin is configured as output, its bit in this register has no effect.
 
 Default value: 0 (all pulls disabled)
 
-### GPIO Input Pull Direction Register (REG_PUD = 0x0D)
+### GPIO input pull direction register (REG_PUD = 0x0D)
 
 If a GPIO is configured as an input (using `REG_DIR`), a optional pull-up/pull-down can be configured.
 
@@ -309,7 +213,7 @@ When a pin is configured as output, its bit in this register has no effect.
 
 Default value: `0xFF` (all pulls set to pull-up, if enabled in `REG_PUE` and set to input in `REG_DIR`)
 
-### GPIO Value Register (REG_GIO = 0x0E)
+### GPIO value register (REG_GIO = 0x0E)
 
 This register contains the values of the GPIO Expander pins, each bit corresponding to one pin. It is 1 byte in size.
 
@@ -321,7 +225,7 @@ Reading from this register will return the values for both input and output pins
 
 Default value: Depends on pin values
 
-### GPIO Interrupt Config Register (REG_GIC = 0x0F)
+### GPIO interrupt config register (REG_GIC = 0x0F)
 
 If a GPIO is configured as an input (using `REG_DIR`), an interrupt can be configured to trigger when the pin's value changes.
 
@@ -335,7 +239,7 @@ When an interrupt happens, the GPIO that triggered the interrupt can be determin
 
 Default value: `0x00`
 
-### GPIO Interrupt Status Register (REG_GIN = 0x10)
+### GPIO interrupt status register (REG_GIN = 0x10)
 
 When an interrupt happens, the register can be read to check which GPIO caused the interrupt, each bit corresponding to one pin. This register is 1 byte in size.
 
@@ -345,7 +249,7 @@ After reading the register, it has to manually be reset to `0x00`.
 
 Default value: `0x00`
 
-### Key Hold Threshold Configuration (REG_HLD = 0x11)
+### Key hold threshold configuration (REG_HLD = 0x11)
 
 This register can be read and written to, it is 1 byte in size.
 
@@ -355,7 +259,7 @@ If a key is held down longer than the value, it enters the "press and hold" stat
 
 Default value: 30 (300ms)
 
-### Device I2C Address (REG_ADR = 0x12)
+### Device I2C address (REG_ADR = 0x12)
 
 The address that the device shows up on the I2C bus under. This register can be read and written to, it is 1 byte in size.
 
@@ -365,7 +269,7 @@ The address is not saved after a reset.
 
 Default value: `0x1F`
 
-### Interrupt Duration (REG_IND = 0x13)
+### Interrupt duration (REG_IND = 0x13)
 
 The value of this register determines how long the INT/IRQ pin is held LOW after an interrupt event happens.This register can be read and written to, it is 1 byte in size.
 
@@ -373,7 +277,7 @@ The value of this register is expressed in ms.
 
 Default value: 1 (1ms)
 
-### The Configuration Register 2 (REG_CF2 = 0x14)
+### The configuration register 2 (REG_CF2 = 0x14)
 
 This register can be read and written to, it's 1 byte in size.
 
@@ -394,7 +298,7 @@ See `REG_CFG` for additional settings.
 
 Default value: `CF2_TOUCH_INT | CF2_USB_KEYB_ON | CF2_USB_MOUSE_ON`
 
-### Trackpad X Position (REG_TOX = 0x15)
+### Trackpad X Position(REG_TOX = 0x15)
 
 This is a read-only register, it is 1 byte in size.
 
@@ -408,7 +312,7 @@ It is recommended to read the value of this register often, or data loss might o
 
 Default value: 0
 
-### Trackpad Y Position (REG_TOY = 0x16)
+### Trackpad Y position (REG_TOY = 0x16)
 
 This is a read-only register, it is 1 byte in size.
 
@@ -422,7 +326,7 @@ It is recommended to read the value of this register often, or data loss might o
 
 Default value: 0
 
-### LED RGB Values (REG_LED_R = 0x21, REG_LED_G = 0x22, REG_LED_B = 0x23)
+### LED RGB values (REG_LED_R = 0x21, REG_LED_G = 0x22, REG_LED_B = 0x23)
 
 These registers can be read and written to, each are 1 byte in size.
 
@@ -436,21 +340,9 @@ This register can be read and written to, it is 1 byte in size.
 
 Default value: 0
 
-## Version History <!-- maybe we just delete this? -->
-    vNext:
-    - Add backlight dimming registers
-    - Revert #1, issues with repeating
-    - Add `new-docker-build` script.
-    - Add `submodule` helper scripts.
-    v2.1:
-    - Boot / shutdown using power key (#1)
-    v2.0:
-    - Beepy prerelease
-    v1.1:
-    - Fixed two quite annoying bugs:
-        - Left Shift sends an ESC key press (#11)
-        - TrackPad button not working with Num Lock on (#10)
+## Version history
+
 	v1.0:
 	- Initial release
-See here for the upstream project's history: https://github.com/solderparty/i2c_puppet#version-history
+
 See here for the legacy project's history: https://github.com/solderparty/bbq10kbd_i2c_sw#version-history

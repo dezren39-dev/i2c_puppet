@@ -29,13 +29,23 @@ enum reg_id
 	REG_ID_TOY = 0x16, // touch delta y since last read, at most (-128 to 127)
 
 	REG_ID_ADC = 0x17,
-	REG_ID_BK4 = 0x18, // Backlight dimming level
-	REG_ID_BK3 = 0x19, // Backlight dimming delay (0 = no dimming, 1 = 500ms, 2 = 1000ms, etc.)
-
 	REG_ID_LED    = 0x20,
 	REG_ID_LED_R  = 0x21,
 	REG_ID_LED_G  = 0x22,
 	REG_ID_LED_B  = 0x23,
+
+	REG_ID_REWAKE_TIME = 0x24, // Power on the Pi in this many minutes
+	REG_ID_REWAKE = 0x25, // Write to shut off Pi, power on after REWAKE_TIME
+
+	REG_ID_RTC_SEC = 0x26,
+	REG_ID_RTC_MIN = 0x27,
+	REG_ID_RTC_HOUR = 0x28,
+	REG_ID_RTC_MDAY = 0x29,
+	REG_ID_RTC_MON = 0x2A,
+	REG_ID_RTC_YEAR = 0x2B, // Years since 1900
+	REG_ID_RTC_COMMIT = 0x2C,
+
+	REG_ID_DRIVER_STATE = 0x2D, // Set when driver is loaded / unloaded cleanly
 
 	REG_ID_LAST,
 };
