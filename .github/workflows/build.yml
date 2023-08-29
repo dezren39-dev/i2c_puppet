@@ -4,8 +4,6 @@ on:
     push:
     pull_request:
     release:
-    tags:
-        - '*'
 
 jobs:
     build:
