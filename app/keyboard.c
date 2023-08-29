@@ -1,6 +1,7 @@
 #include "app_config.h"
 #include "fifo.h"
 #include "keyboard.h"
+#include "backlight.h"
 #include "reg.h"
 #include "pi.h"
 
@@ -151,6 +152,7 @@ static void transition_to(struct list_item * const p_item, const enum key_state 
 	if (p_item->effective_key == '\0')
 		return;
 
+	backlight_trigger();
 	keyboard_inject_event(p_item->effective_key, next_state);
 }
 
@@ -228,7 +230,7 @@ static void next_item_state(struct list_item * const p_item, const bool pressed)
 		case KEY_STATE_LONG_HOLD:
 			if (!pressed)
 				transition_to(p_item, KEY_STATE_RELEASED);
-			break;			
+			break;
 
 		case KEY_STATE_RELEASED:
 		{
@@ -243,7 +245,7 @@ static void next_item_state(struct list_item * const p_item, const bool pressed)
 	}
 }
 
-static int64_t timer_task(alarm_id_t id, void *user_data)
+static int64_t idle_detector_timer_task(alarm_id_t id, void *user_data)
 {
 	(void)id;
 	(void)user_data;
@@ -444,5 +446,5 @@ void keyboard_init(void)
 	}
 #endif
 
-	add_alarm_in_ms(reg_get_value(REG_ID_FRQ), timer_task, NULL, true);
+	add_alarm_in_ms(reg_get_value(REG_ID_FRQ), idle_detector_timer_task, NULL, true);
 }
