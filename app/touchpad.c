@@ -1,7 +1,6 @@
 #include "touchpad.h"
 
 #include "keyboard.h"
-#include "backlight.h"
 
 #include <hardware/i2c.h>
 #include <pico/binary_info.h>
@@ -72,51 +71,52 @@ int64_t release_key(alarm_id_t id, void *user_data)
 
 void touchpad_gpio_irq(uint gpio, uint32_t events)
 {
-	if (gpio != PIN_TP_MOTION)
-		return;
+    if (gpio != PIN_TP_MOTION)
+        return;
 
-	if (!(events & GPIO_IRQ_EDGE_FALL))
-		return;
+    if (!(events & GPIO_IRQ_EDGE_FALL))
+        return;
 
-	const uint8_t motion = read_register8(REG_MOTION);
-	if (motion & BIT_MOTION_MOT) {
-		int8_t x = read_register8(REG_DELTA_X);
-		int8_t y = read_register8(REG_DELTA_Y);
+    const uint8_t motion = read_register8(REG_MOTION);
+    if (motion & BIT_MOTION_MOT) {
+        int8_t x = read_register8(REG_DELTA_X);
+        int8_t y = read_register8(REG_DELTA_Y);
 
-		x = ((x < 127) ? x : (x - 256)) * -1;
-		y = ((y < 127) ? y : (y - 256));
+        x = ((x < 127) ? x : (x - 256)) * -1;
+        y = ((y < 127) ? y : (y - 256));
 
-		if (keyboard_is_mod_on(KEY_MOD_ID_ALT)) {
-			if (to_ms_since_boot(get_absolute_time()) - self.last_swipe_time > SWIPE_COOLDOWN_TIME_MS) {
-				char key = '\0';
-				if (MOTION_IS_SWIPE(y, x)) {
-					key = (y < 0) ? KEY_JOY_UP : KEY_JOY_DOWN;
-				} else if (MOTION_IS_SWIPE(x, y)) {
-					key = (x < 0) ? KEY_JOY_LEFT : KEY_JOY_RIGHT;
-				}
+        if (keyboard_is_mod_on(KEY_MOD_ID_ALT)) {
+            if (to_ms_since_boot(get_absolute_time()) - self.last_swipe_time > SWIPE_COOLDOWN_TIME_MS) {
+                char key = '\0';
+                if (MOTION_IS_SWIPE(y, x)) {
+                    key = (y < 0) ? KEY_JOY_UP : KEY_JOY_DOWN;
+                } else if (MOTION_IS_SWIPE(x, y)) {
+                    key = (x < 0) ? KEY_JOY_LEFT : KEY_JOY_RIGHT;
+                }
 
-				if (key != '\0') {
-					keyboard_inject_event(key, KEY_STATE_PRESSED);
+                if (key != '\0') {
+                    keyboard_inject_event(key, KEY_STATE_PRESSED);
 
-					// we need to allow the usb a bit of time to send the press, so schedule the release after a bit
-					add_alarm_in_ms(SWIPE_RELEASE_DELAY_MS, release_key, (void*)(int)key, true);
+                    // Schedule the release after a bit
+                    add_alarm_in_ms(SWIPE_RELEASE_DELAY_MS, release_key, (void*)(int)key, true);
 
-					self.last_swipe_time = to_ms_since_boot(get_absolute_time());
-				}
-			}
-		} else {
-			backlight_trigger();
-			if (self.callbacks) {
-				struct touch_callback *cb = self.callbacks;
+                    self.last_swipe_time = to_ms_since_boot(get_absolute_time());
+                }
+            }
+        } else {
+            backlight_trigger(); // Added this line for backlight functionality
 
-				while (cb) {
-					cb->func(x, y);
+            if (self.callbacks) {
+                struct touch_callback *cb = self.callbacks;
 
-					cb = cb->next;
-				}
-			}
-		}
-	}
+                while (cb) {
+                    cb->func(x, y);
+
+                    cb = cb->next;
+                }
+            }
+        }
+    }
 }
 
 void touchpad_add_touch_callback(struct touch_callback *callback)

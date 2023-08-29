@@ -1,4 +1,4 @@
-# I2C Puppet
+# Beepberry for of I2C Puppet
 
 This is a port of the old [BB Q10 Keyboard-to-I2C Software](https://github.com/solderparty/bbq10kbd_i2c_sw) to the RP2040, expanded with new features, while still staying backwards compatible.
 
@@ -9,6 +9,25 @@ On the features side, this software adds USB support, the keyboard acts as a USB
 On the I2C side, you can access the key presses, the trackpad state, you can control some of the board GPIOs, as well as the backlight.
 
 See [Protocol](#protocol) for details of the I2C puppet.
+
+## Modifications
+
+Firmware has been updated to use BB10-style sticky modifier keys. It has a corresponding kernel module that has been updated to read modifier fields over I2C.
+
+Holding a modifier key (shift, physical alt, Symbol) while typing an alpha keys will apply the modifier to all alpha keys until the modifier is released.
+
+One press and release of the modifier will enter sticky mode, applying the modifier to
+the next alpha key only. If the same modifier key is pressed and released again in sticky mode, it will be canceled.
+
+Call is mapped to Control. The Berry button is mapped to `KEY_PROPS`. Clicking the touchpad button is mapped to `KEY_COMPOSE`. Back is mapped to Escape. End Call is not sent as a key, but holding it will still trigger the power-off routine. Symbol is mapped to AltGr (Right Alt).
+
+This firmware targets the Beepberry hardware. It can still act as a USB keyboard, but physical alt keys will not work unless you remap their values.
+
+Physical alt does not send an actual Alt key, but remaps the output scancodes to the range 135 to 161 in QWERTY order. This should be combined with a keymap for proper symbol output. This allows symbols to be customized without rebuilding the firmware, as well as proper use of the actual Alt key.
+
+### The rest of the Readme
+
+I have not yet updated any other part of the Readme file.
 
 ## Checkout
 
@@ -26,7 +45,7 @@ See the `boards` directory for a list of available boards.
 
     mkdir build
     cd build
-    cmake -DPICO_BOARD=bbq20kbd_breakout -DCMAKE_BUILD_TYPE=Debug ..
+    cmake -DPICO_BOARD=beepberry -DCMAKE_BUILD_TYPE=Debug ..
     make
 
 ## Vendor USB Class
@@ -48,6 +67,8 @@ Here are libraries that allow I2C interaction with the boards running this softw
 - [Arduino](https://github.com/solderparty/arduino_bbq10kbd)
 - [CircuitPython](https://github.com/solderparty/arturo182_CircuitPython_BBQ10Keyboard)
 - [Rust (Embedded-HAL)](https://crates.io/crates/bbq10kbd)
+- [Feature-rich Linux Driver](https://github.com/wallComputer/bbqX0kbd_driver/)
+- [Linux Kernel Module](https://github.com/billylindeman/bbq10kbd-kernel-driver)
 
 ## Protocol
 
@@ -305,13 +326,14 @@ It is recommended to read the value of this register often, or data loss might o
 
 Default value: 0
 
+<<<<<<< HEAD
 ### Backlight dimming timeout (REG_ID_BK3 = 0x17)
 
 This is a read-write register, it is 1 byte in size.
 
 The value of this register (expressed in units of 500ms) is used to determine when the backlight should be dimmed.
 
-Set to 0 to disable backlight dimming entirely. 
+Set to 0 to disable backlight dimming entirely.
 
 Default value: 0
 
@@ -323,6 +345,19 @@ The value of this register is used to determine the backlight level when it is t
 
 Default value: 96
 
+### LED RGB values (REG_LED_R = 0x21, REG_LED_G = 0x22, REG_LED_B = 0x23)
+
+These registers can be read and written to, each are 1 byte in size.
+
+Set the red/green/blue values between 0-255 `0x00 - 0xFF`
+
+### LED On/Off (REG_LED = 0x20)
+
+This register can be read and written to, it is 1 byte in size.
+
+`0x00` is off, any other value is on
+
+Default value: 0
 
 ## Version history
 
