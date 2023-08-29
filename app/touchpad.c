@@ -85,8 +85,9 @@ void touchpad_gpio_irq(uint gpio, uint32_t events)
 		x = ((x < 127) ? x : (x - 256)) * -1;
 		y = ((y < 127) ? y : (y - 256));
 
+        backlight_trigger();
 		if (self.callbacks) {
-			struct touch_callback *cb = self.callbacks;
+            struct touch_callback *cb = self.callbacks;
 
 			while (cb) {
 				cb->func(x, y);
