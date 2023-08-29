@@ -442,10 +442,10 @@ Default value: 0
 
 ## Version history <!-- maybe we just delete this? -->
     vNext:
-    - Add `submodule` helper scripts.
-    - Add `new-docker-build` script.
-    - Revert #1, issues with repeating
     - Add backlight dimming registers
+    - Revert #1, issues with repeating
+    - Add `new-docker-build` script.
+    - Add `submodule` helper scripts.
     v2.1:
     - Boot / shutdown using power key (#1)
     v2.0:
@@ -456,5 +456,4 @@ Default value: 0
         - TrackPad button not working with Num Lock on (#10)
 	v1.0:
 	- Initial release
-
 See here for the legacy project's history: https://github.com/solderparty/bbq10kbd_i2c_sw#version-history
