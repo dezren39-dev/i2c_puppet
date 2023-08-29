@@ -63,13 +63,7 @@ void backlight_init(void)
 	pwm_config config = pwm_get_default_config();
 	pwm_init(slice_num, &config, true);
 
-<<<<<<< HEAD
     self.backlight_level = reg_get_value(REG_ID_BKL);
-||||||| parent of f2c43e1 (move backlight variable declarations from header to c file)
- 	backlight_level = reg_get_value(REG_ID_BKL);
-=======
- 	self.backlight_level = reg_get_value(REG_ID_BKL);
->>>>>>> f2c43e1 (move backlight variable declarations from header to c file)
 	backlight_sync();
 	self.last_triggered = 0;
 
